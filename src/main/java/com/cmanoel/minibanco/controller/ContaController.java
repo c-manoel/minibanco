@@ -1,4 +1,4 @@
-package com.cmanoel.minibanco.Controller;
+package com.cmanoel.minibanco.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;

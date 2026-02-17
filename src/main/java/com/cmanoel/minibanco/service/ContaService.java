@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.cmanoel.minibanco.domain.Conta;
 import com.cmanoel.minibanco.dto.PixRequest;
+import com.cmanoel.minibanco.exception.ContaNaoEncontradaException;
+import com.cmanoel.minibanco.exception.RegraNegocioException;
+import com.cmanoel.minibanco.exception.SaldoInsuficienteException;
 import com.cmanoel.minibanco.repository.ContaRepository;
 
 import jakarta.transaction.Transactional;
@@ -31,17 +34,17 @@ public class ContaService {
 
     public BigDecimal buscarSaldo(String email) {
         Conta conta = contaRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+            .orElseThrow(() -> new ContaNaoEncontradaException("Conta não encontrada"));
         return conta.getSaldo();
     }
 
     @Transactional
     public void depositar(String email, BigDecimal valor) {
         Conta conta = contaRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+            .orElseThrow(() -> new ContaNaoEncontradaException("Conta não encontrada"));
 
         if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Valor de depósito inválido");
+            throw new RegraNegocioException("Valor de depósito inválido");
         }
 
         conta.setSaldo(conta.getSaldo().add(valor));
@@ -52,15 +55,15 @@ public class ContaService {
     public void realizarPix(String emailOrigem, PixRequest request) {
 
         Conta origem = contaRepository.findByEmail(emailOrigem)
-            .orElseThrow(() -> new RuntimeException("Conta origem não encontrada"));
+            .orElseThrow(() -> new ContaNaoEncontradaException("Conta origem não encontrada"));
 
         Conta destino = contaRepository.findByEmail(request.getEmailDestino())
-            .orElseThrow(() -> new RuntimeException("Conta destino não encontrada"));
+            .orElseThrow(() -> new ContaNaoEncontradaException("Conta destino não encontrada"));
 
         BigDecimal valor = request.getValor();
 
         if (origem.getSaldo().compareTo(valor) < 0) {
-            throw new RuntimeException("Saldo insuficiente");
+            throw new SaldoInsuficienteException("Saldo insuficiente");
         }
 
         origem.setSaldo(origem.getSaldo().subtract(valor));

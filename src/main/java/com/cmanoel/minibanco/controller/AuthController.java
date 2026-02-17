@@ -2,40 +2,47 @@ package com.cmanoel.minibanco.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cmanoel.minibanco.domain.Conta;
 import com.cmanoel.minibanco.dto.LoginRequest;
-import com.cmanoel.minibanco.repository.ContaRepository;
+import com.cmanoel.minibanco.dto.TokenResponse;
+import com.cmanoel.minibanco.security.JwtUtil;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final ContaRepository contaRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(ContaRepository contaRepository,
-                          PasswordEncoder passwordEncoder) {
-        this.contaRepository = contaRepository;
-        this.passwordEncoder = passwordEncoder;
+    public AuthController(AuthenticationManager authenticationManager,
+                          JwtUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getSenha())
+            );
 
-        Conta conta = contaRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String token = jwtUtil.gerarToken(userDetails.getUsername());
 
-        if (!passwordEncoder.matches(request.getSenha(), conta.getSenha())) {
+            return ResponseEntity.ok(new TokenResponse(token));
+        } catch (BadCredentialsException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Senha inválida");
+                .body("Credenciais inválidas");
         }
-
-        return ResponseEntity.ok("Login realizado com sucesso");
     }
 }

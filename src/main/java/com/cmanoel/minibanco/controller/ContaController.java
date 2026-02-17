@@ -2,6 +2,8 @@ package com.cmanoel.minibanco.controller;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cmanoel.minibanco.domain.Conta;
+import com.cmanoel.minibanco.dto.ContaResponse;
+import com.cmanoel.minibanco.dto.DepositoRequest;
 import com.cmanoel.minibanco.dto.PixRequest;
 import com.cmanoel.minibanco.service.ContaService;
 
@@ -28,26 +32,41 @@ public class ContaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Conta criarConta(@RequestBody Conta conta) {
-        return contaService.criarConta(conta);
+    public ContaResponse criarConta(@RequestBody Conta conta) {
+        Conta criada = contaService.criarConta(conta);
+        return new ContaResponse(
+            criada.getId(),
+            criada.getNome(),
+            criada.getEmail(),
+            criada.getSaldo()
+        );
     }
 
     @GetMapping("/saldo")
-public ResponseEntity<BigDecimal> verSaldo(Authentication auth) {
-    String email = auth.getName();
-    BigDecimal saldo = contaService.buscarSaldo(email);
-    return ResponseEntity.ok(saldo);
+    public ResponseEntity<BigDecimal> verSaldo(Authentication auth) {
+        String email = auth.getName();
+        BigDecimal saldo = contaService.buscarSaldo(email);
+        return ResponseEntity.ok(saldo);
     }
 
-@PostMapping("/pix")
-public ResponseEntity<String> pix(
-        @RequestBody PixRequest request,
-        Authentication auth) {
+    @PostMapping("/deposito")
+    public ResponseEntity<String> depositar(
+            @Valid @RequestBody DepositoRequest request,
+            Authentication auth) {
+        String email = auth.getName();
+        contaService.depositar(email, request.getValor());
+        return ResponseEntity.ok("Depósito realizado com sucesso");
+    }
 
-    String emailOrigem = auth.getName();
-    contaService.realizarPix(emailOrigem, request);
+    @PostMapping("/pix")
+    public ResponseEntity<String> pix(
+            @Valid @RequestBody PixRequest request,
+            Authentication auth) {
 
-    return ResponseEntity.ok("PIX realizado com sucesso");
+        String emailOrigem = auth.getName();
+        contaService.realizarPix(emailOrigem, request);
+
+        return ResponseEntity.ok("PIX realizado com sucesso");
     }
 
 }

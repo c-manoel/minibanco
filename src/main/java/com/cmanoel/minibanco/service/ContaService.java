@@ -36,6 +36,19 @@ public class ContaService {
     }
 
     @Transactional
+    public void depositar(String email, BigDecimal valor) {
+        Conta conta = contaRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Valor de depósito inválido");
+        }
+
+        conta.setSaldo(conta.getSaldo().add(valor));
+        contaRepository.save(conta);
+    }
+
+    @Transactional
     public void realizarPix(String emailOrigem, PixRequest request) {
 
         Conta origem = contaRepository.findByEmail(emailOrigem)

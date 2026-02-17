@@ -3,25 +3,13 @@ package com.cmanoel.minibanco.dto;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class PixRequest {
-
-    @NotBlank(message = "Email de destino é obrigatório")
-    private String emailDestino;
+public class DepositoRequest {
 
     @NotNull(message = "Valor é obrigatório")
     @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
     private BigDecimal valor;
-
-    public String getEmailDestino() {
-        return emailDestino;
-    }
-
-    public void setEmailDestino(String emailDestino) {
-        this.emailDestino = emailDestino;
-    }
 
     public BigDecimal getValor() {
         return valor;

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniBanco</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>MiniBanco</h1>
+      <p>Login, saldo, deposito e PIX</p>
+    </header>
+
+    <section id="login-section" class="card">
+      <h2>Login</h2>
+      <form id="login-form">
+        <label for="email">Email</label>
+        <input id="email" type="email" required>
+
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" required>
+
+        <button type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <section id="dashboard-section" class="card hidden">
+      <div class="topbar">
+        <h2>Dashboard</h2>
+        <button id="logout-btn" class="secondary">Logout</button>
+      </div>
+
+      <div class="saldo-box">
+        <span>Saldo atual</span>
+        <strong id="saldo-value">R$ 0,00</strong>
+        <button id="refresh-saldo-btn" class="secondary">Atualizar saldo</button>
+      </div>
+
+      <div class="grid">
+        <form id="deposito-form" class="inner-card">
+          <h3>Deposito</h3>
+          <label for="deposito-valor">Valor</label>
+          <input id="deposito-valor" type="number" step="0.01" min="0.01" required>
+          <button type="submit">Depositar</button>
+        </form>
+
+        <form id="pix-form" class="inner-card">
+          <h3>PIX</h3>
+          <label for="pix-email-destino">Email destino</label>
+          <input id="pix-email-destino" type="email" required>
+          <label for="pix-valor">Valor</label>
+          <input id="pix-valor" type="number" step="0.01" min="0.01" required>
+          <button type="submit">Enviar PIX</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="feedback" class="feedback hidden"></section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

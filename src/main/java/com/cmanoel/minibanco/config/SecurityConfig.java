@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/contas").permitAll()
                 .requestMatchers("/ping").permitAll()
                 .requestMatchers("/error").permitAll()
+                .requestMatchers("/", "/index.html", "/app.css", "/app.js").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

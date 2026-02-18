@@ -1,0 +1,121 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(135deg, #f4f7fb, #eaf0ff);
+  color: #1d2735;
+}
+
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+header h1 {
+  margin: 0;
+}
+
+header p {
+  margin: 6px 0 22px;
+  color: #4f6076;
+}
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 8px 22px rgba(20, 38, 70, 0.08);
+}
+
+.hidden {
+  display: none;
+}
+
+form {
+  display: grid;
+  gap: 8px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d4dcea;
+  border-radius: 8px;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #1a73e8;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #eef3ff;
+  color: #1a3f8a;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.saldo-box {
+  margin-top: 12px;
+  background: #f3f7ff;
+  border: 1px solid #d8e4ff;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.saldo-box strong {
+  font-size: 1.5rem;
+}
+
+.grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.inner-card {
+  background: #f9fbff;
+  border: 1px solid #e2eaf9;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.inner-card h3 {
+  margin: 0 0 6px;
+}
+
+.feedback {
+  margin-top: 14px;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 600;
+}
+
+.feedback.success {
+  background: #e9f9ef;
+  color: #19653a;
+  border: 1px solid #b8e7ca;
+}
+
+.feedback.error {
+  background: #fff0f0;
+  color: #8e2222;
+  border: 1px solid #f1c2c2;
+}

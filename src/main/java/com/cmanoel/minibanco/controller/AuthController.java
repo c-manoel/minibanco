@@ -1,6 +1,5 @@
 package com.cmanoel.minibanco.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cmanoel.minibanco.dto.LoginRequest;
 import com.cmanoel.minibanco.dto.TokenResponse;
+import com.cmanoel.minibanco.exception.CredenciaisInvalidasException;
 import com.cmanoel.minibanco.security.JwtUtil;
 
 @RestController
@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getSenha())
@@ -41,8 +41,7 @@ public class AuthController {
 
             return ResponseEntity.ok(new TokenResponse(token));
         } catch (BadCredentialsException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Credenciais inválidas");
+            throw new CredenciaisInvalidasException("Credenciais inválidas");
         }
     }
 }

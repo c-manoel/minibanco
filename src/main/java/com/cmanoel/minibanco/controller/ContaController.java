@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cmanoel.minibanco.domain.Conta;
 import com.cmanoel.minibanco.dto.ContaResponse;
 import com.cmanoel.minibanco.dto.DepositoRequest;
+import com.cmanoel.minibanco.dto.OperacaoResponse;
 import com.cmanoel.minibanco.dto.PixRequest;
+import com.cmanoel.minibanco.dto.SaldoResponse;
 import com.cmanoel.minibanco.service.ContaService;
 
 @RestController
@@ -43,30 +45,30 @@ public class ContaController {
     }
 
     @GetMapping("/saldo")
-    public ResponseEntity<BigDecimal> verSaldo(Authentication auth) {
+    public ResponseEntity<SaldoResponse> verSaldo(Authentication auth) {
         String email = auth.getName();
         BigDecimal saldo = contaService.buscarSaldo(email);
-        return ResponseEntity.ok(saldo);
+        return ResponseEntity.ok(new SaldoResponse(saldo));
     }
 
     @PostMapping("/deposito")
-    public ResponseEntity<String> depositar(
+    public ResponseEntity<OperacaoResponse> depositar(
             @Valid @RequestBody DepositoRequest request,
             Authentication auth) {
         String email = auth.getName();
         contaService.depositar(email, request.getValor());
-        return ResponseEntity.ok("Depósito realizado com sucesso");
+        return ResponseEntity.ok(new OperacaoResponse("Depósito realizado com sucesso"));
     }
 
     @PostMapping("/pix")
-    public ResponseEntity<String> pix(
+    public ResponseEntity<OperacaoResponse> pix(
             @Valid @RequestBody PixRequest request,
             Authentication auth) {
 
         String emailOrigem = auth.getName();
         contaService.realizarPix(emailOrigem, request);
 
-        return ResponseEntity.ok("PIX realizado com sucesso");
+        return ResponseEntity.ok(new OperacaoResponse("PIX realizado com sucesso"));
     }
 
 }

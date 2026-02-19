@@ -5,12 +5,38 @@ const loginSection = document.getElementById("login-section");
 const dashboardSection = document.getElementById("dashboard-section");
 const feedbackSection = document.getElementById("feedback");
 const saldoValue = document.getElementById("saldo-value");
+const extratoList = document.getElementById("extrato-list");
 
 const loginForm = document.getElementById("login-form");
 const depositoForm = document.getElementById("deposito-form");
 const pixForm = document.getElementById("pix-form");
 const logoutBtn = document.getElementById("logout-btn");
 const refreshSaldoBtn = document.getElementById("refresh-saldo-btn");
+const cadastroForm = document.getElementById("cadastro-form");
+
+
+if (cadastroForm) {
+  cadastroForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    hideFeedback();
+
+    const nome = document.getElementById("cadastro-nome").value.trim();
+    const email = document.getElementById("cadastro-email").value.trim();
+    const senha = document.getElementById("cadastro-senha").value;
+
+    try {
+      await apiRequest("/contas", {
+        method: "POST",
+        body: JSON.stringify({ nome, email, senha })
+      });
+      showFeedback("success", "Conta criada com sucesso. Agora faca login.");
+      cadastroForm.reset();
+    } catch (error) {
+      showFeedback("error", error.message);
+    }
+  });
+}
+
 
 function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -97,6 +123,33 @@ async function carregarSaldo() {
   }
 }
 
+async function carregarExtrato() {
+  if (!extratoList) {
+    return;
+  }
+
+  try {
+    const itens = await apiRequest("/contas/extrato", { method: "GET" });
+    extratoList.innerHTML = "";
+
+    if (!itens.length) {
+      const li = document.createElement("li");
+      li.textContent = "Sem transacoes ainda.";
+      extratoList.appendChild(li);
+      return;
+    }
+
+    itens.forEach((item) => {
+      const li = document.createElement("li");
+      const data = new Date(item.dataHora).toLocaleString("pt-BR");
+      li.textContent = `${data} | ${item.tipo} | ${formatCurrency(item.valor)} | ${item.emailOrigem} -> ${item.emailDestino}`;
+      extratoList.appendChild(li);
+    });
+  } catch (error) {
+    showFeedback("error", error.message);
+  }
+}
+
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   hideFeedback();
@@ -114,6 +167,7 @@ loginForm.addEventListener("submit", async (event) => {
     setAuthenticatedUI(true);
     showFeedback("success", "Login realizado com sucesso");
     await carregarSaldo();
+    await carregarExtrato();
     loginForm.reset();
   } catch (error) {
     showFeedback("error", error.message);
@@ -134,6 +188,7 @@ depositoForm.addEventListener("submit", async (event) => {
     showFeedback("success", data.mensagem || "Deposito realizado");
     depositoForm.reset();
     await carregarSaldo();
+    await carregarExtrato();
   } catch (error) {
     showFeedback("error", error.message);
   }
@@ -154,6 +209,7 @@ pixForm.addEventListener("submit", async (event) => {
     showFeedback("success", data.mensagem || "PIX realizado");
     pixForm.reset();
     await carregarSaldo();
+    await carregarExtrato();
   } catch (error) {
     showFeedback("error", error.message);
   }
@@ -163,10 +219,16 @@ logoutBtn.addEventListener("click", () => {
   clearToken();
   setAuthenticatedUI(false);
   saldoValue.textContent = formatCurrency(0);
+  if (extratoList) {
+    extratoList.innerHTML = "";
+  }
   showFeedback("success", "Logout realizado");
 });
 
-refreshSaldoBtn.addEventListener("click", carregarSaldo);
+refreshSaldoBtn.addEventListener("click", async () => {
+  await carregarSaldo();
+  await carregarExtrato();
+});
 
 async function init() {
   const token = getToken();
@@ -177,6 +239,7 @@ async function init() {
 
   setAuthenticatedUI(true);
   await carregarSaldo();
+  await carregarExtrato();
 }
 
 init();

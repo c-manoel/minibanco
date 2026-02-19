@@ -29,6 +29,9 @@ public class Conta implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(unique = true, length = 11)
+    private String cpf;
+
     @Column(nullable = false)
     private String senha;
 
@@ -63,6 +66,14 @@ public class Conta implements UserDetails {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public BigDecimal getSaldo() {

@@ -54,7 +54,28 @@
           <input id="pix-valor" type="number" step="0.01" min="0.01" required>
           <button type="submit">Enviar PIX</button>
         </form>
+
+        <div class="inner-card">
+          <h3>Extrato</h3>
+          <ul id="extrato-list"></ul>
+        </div>
       </div>
+    </section>
+
+    <section id="cadastro-section" class="card">
+      <h2>Criar Conta</h2>
+      <form id="cadastro-form">
+        <label for="cadastro-nome">Nome</label>
+        <input id="cadastro-nome" type="text" required>
+
+        <label for="cadastro-email">Email</label>
+        <input id="cadastro-email" type="email" required>
+
+        <label for="cadastro-senha">Senha</label>
+        <input id="cadastro-senha" type="password" required>
+
+        <button type="submit">Criar conta</button>
+      </form>
     </section>
 
     <section id="feedback" class="feedback hidden"></section>

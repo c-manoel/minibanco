@@ -1,6 +1,7 @@
 package com.cmanoel.minibanco.controller;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import jakarta.validation.Valid;
 
@@ -15,9 +16,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cmanoel.minibanco.domain.Conta;
+import com.cmanoel.minibanco.dto.AlterarSenhaRequest;
+import com.cmanoel.minibanco.dto.CadastrarChavePixRequest;
+import com.cmanoel.minibanco.dto.ChavePixResponse;
 import com.cmanoel.minibanco.dto.ContaResponse;
+import com.cmanoel.minibanco.dto.CriarContaRequest;
 import com.cmanoel.minibanco.dto.DepositoRequest;
+import com.cmanoel.minibanco.dto.ExtratoItemResponse;
 import com.cmanoel.minibanco.dto.OperacaoResponse;
+import com.cmanoel.minibanco.dto.PerfilResponse;
+import com.cmanoel.minibanco.dto.PixConfirmRequest;
+import com.cmanoel.minibanco.dto.PixPreviewRequest;
+import com.cmanoel.minibanco.dto.PixPreviewResponse;
 import com.cmanoel.minibanco.dto.PixRequest;
 import com.cmanoel.minibanco.dto.SaldoResponse;
 import com.cmanoel.minibanco.service.ContaService;
@@ -34,8 +44,8 @@ public class ContaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ContaResponse criarConta(@RequestBody Conta conta) {
-        Conta criada = contaService.criarConta(conta);
+    public ContaResponse criarConta(@Valid @RequestBody CriarContaRequest request) {
+        Conta criada = contaService.criarConta(request);
         return new ContaResponse(
             criada.getId(),
             criada.getNome(),
@@ -49,6 +59,27 @@ public class ContaController {
         String email = auth.getName();
         BigDecimal saldo = contaService.buscarSaldo(email);
         return ResponseEntity.ok(new SaldoResponse(saldo));
+    }
+
+    @GetMapping("/extrato")
+    public ResponseEntity<List<ExtratoItemResponse>> extrato(Authentication auth) {
+        String email = auth.getName();
+        return ResponseEntity.ok(contaService.buscarExtrato(email));
+    }
+
+    @GetMapping("/perfil")
+    public ResponseEntity<PerfilResponse> perfil(Authentication auth) {
+        String email = auth.getName();
+        return ResponseEntity.ok(contaService.buscarPerfil(email));
+    }
+
+    @PostMapping("/perfil/senha")
+    public ResponseEntity<OperacaoResponse> alterarSenha(
+            @Valid @RequestBody AlterarSenhaRequest request,
+            Authentication auth) {
+        String email = auth.getName();
+        contaService.alterarSenha(email, request.getSenhaAtual(), request.getNovaSenha());
+        return ResponseEntity.ok(new OperacaoResponse("Senha alterada com sucesso"));
     }
 
     @PostMapping("/deposito")
@@ -69,6 +100,38 @@ public class ContaController {
         contaService.realizarPix(emailOrigem, request);
 
         return ResponseEntity.ok(new OperacaoResponse("PIX realizado com sucesso"));
+    }
+
+    @PostMapping("/pix/chaves")
+    public ResponseEntity<ChavePixResponse> cadastrarChavePix(
+            @Valid @RequestBody CadastrarChavePixRequest request,
+            Authentication auth) {
+        String email = auth.getName();
+        ChavePixResponse response = contaService.cadastrarChavePix(email, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/pix/chaves")
+    public ResponseEntity<List<ChavePixResponse>> listarChavesPix(Authentication auth) {
+        String email = auth.getName();
+        return ResponseEntity.ok(contaService.listarChavesPix(email));
+    }
+
+    @PostMapping("/pix/preview")
+    public ResponseEntity<PixPreviewResponse> pixPreview(
+            @Valid @RequestBody PixPreviewRequest request,
+            Authentication auth) {
+        String email = auth.getName();
+        return ResponseEntity.ok(contaService.gerarPixPreview(email, request));
+    }
+
+    @PostMapping("/pix/confirmar")
+    public ResponseEntity<OperacaoResponse> pixConfirmar(
+            @Valid @RequestBody PixConfirmRequest request,
+            Authentication auth) {
+        String email = auth.getName();
+        contaService.confirmarPix(email, request);
+        return ResponseEntity.ok(new OperacaoResponse("PIX confirmado e realizado com sucesso"));
     }
 
 }

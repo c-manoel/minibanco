@@ -6,22 +6,23 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class PixRequest {
+public class PixPreviewRequest {
 
-    @NotBlank(message = "Email de destino é obrigatório")
-    private String emailDestino;
+    @NotBlank(message = "Chave PIX de destino é obrigatória")
+    private String chaveDestino;
 
     @NotNull(message = "Valor é obrigatório")
     @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
     private BigDecimal valor;
+
     private boolean confirmacaoExtra;
 
-    public String getEmailDestino() {
-        return emailDestino;
+    public String getChaveDestino() {
+        return chaveDestino;
     }
 
-    public void setEmailDestino(String emailDestino) {
-        this.emailDestino = emailDestino;
+    public void setChaveDestino(String chaveDestino) {
+        this.chaveDestino = chaveDestino;
     }
 
     public BigDecimal getValor() {

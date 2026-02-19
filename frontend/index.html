@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniBanco Frontend</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section id="auth-shell" class="auth-shell">
+      <h1>MiniBanco</h1>
+      <p class="subtitle">Conta digital para treino de backend e frontend</p>
+
+      <div class="tabs">
+        <button type="button" class="tab-btn active" data-auth-tab="login">Login</button>
+        <button type="button" class="tab-btn" data-auth-tab="cadastro">Criar conta</button>
+      </div>
+
+      <form id="login-form" class="auth-form">
+        <label for="email">Email</label>
+        <input id="email" type="email" required>
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" required>
+        <button type="submit">Entrar</button>
+      </form>
+
+      <form id="cadastro-form" class="auth-form hidden">
+        <label for="cadastro-nome">Nome</label>
+        <input id="cadastro-nome" type="text" required>
+        <label for="cadastro-cpf">CPF (somente numeros)</label>
+        <input id="cadastro-cpf" type="text" pattern="[0-9]{11}" maxlength="11" required>
+        <label for="cadastro-email">Email</label>
+        <input id="cadastro-email" type="email" required>
+        <label for="cadastro-senha">Senha</label>
+        <input id="cadastro-senha" type="password" required>
+        <button type="submit">Criar conta</button>
+      </form>
+    </section>
+
+    <section id="dashboard-shell" class="dashboard-shell hidden">
+      <aside class="sidebar">
+        <h2>MiniBanco</h2>
+        <div class="profile-box">
+          <span id="profile-name">Titular</span>
+          <small id="profile-cpf">CPF: ***.***.***-**</small>
+        </div>
+        <nav>
+          <button type="button" class="menu-btn active" data-section="saldo">💰 Saldo</button>
+          <button type="button" class="menu-btn" data-section="deposito">➕ Deposito</button>
+          <button type="button" class="menu-btn" data-section="pix">🔁 PIX</button>
+          <button type="button" class="menu-btn" data-section="extrato">📄 Extrato</button>
+        </nav>
+        <div class="security-note">🔒 Sessao segura · Token ativo</div>
+        <button id="end-sessions-btn" class="secondary sidebar-secondary">Encerrar todas as sessoes</button>
+        <button id="logout-btn" class="logout-btn">Logout</button>
+      </aside>
+
+      <section class="content">
+        <header class="dashboard-header">
+          <div>
+            <h3 id="welcome-name">Olá</h3>
+            <small id="last-access">Último acesso: --</small>
+            <small id="session-expiry">Sessao expira em: --</small>
+          </div>
+          <div class="header-actions">
+            <button id="notify-btn" type="button" class="header-action-btn">
+              🔔 Notificacoes
+              <span id="notify-badge" class="notify-badge hidden">0</span>
+            </button>
+            <button id="profile-btn" type="button" class="header-action-btn">👤 Meu Perfil</button>
+          </div>
+          <div id="notify-panel" class="notify-panel hidden">
+            <div class="notify-head">
+              <strong>Notificacoes</strong>
+              <button id="notify-read-btn" type="button" class="link-btn">Marcar como lidas</button>
+            </div>
+            <div class="notify-filters">
+              <button type="button" class="notify-filter-btn active" data-notify-type="TODOS">Todos</button>
+              <button type="button" class="notify-filter-btn" data-notify-type="DEPOSITO">Deposito</button>
+              <button type="button" class="notify-filter-btn" data-notify-type="PIX_ENVIADO">PIX enviado</button>
+              <button type="button" class="notify-filter-btn" data-notify-type="PIX_RECEBIDO">PIX recebido</button>
+              <label class="notify-unread">
+                <input id="notify-unread-only" type="checkbox">
+                Somente nao lidas
+              </label>
+            </div>
+            <ul id="notify-list" class="notify-list"></ul>
+          </div>
+        </header>
+
+        <article id="section-saldo" class="content-section">
+          <h3>Painel financeiro</h3>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span>Saldo disponivel</span>
+              <strong id="summary-saldo">R$ 0,00</strong>
+            </div>
+            <div class="summary-item">
+              <span>Ultima movimentacao</span>
+              <strong id="summary-last-move">Sem dados</strong>
+            </div>
+            <div class="summary-item">
+              <span>Total enviado no mes</span>
+              <strong id="summary-month-out">R$ 0,00</strong>
+            </div>
+          </div>
+
+          <div class="saldo-card">
+            <div class="saldo-card-head">
+              <span>Conta Corrente</span>
+              <span>💳</span>
+            </div>
+            <small id="account-mask">**** 0000</small>
+            <span>Disponivel</span>
+            <strong id="saldo-value" class="saldo-valor">R$ 0,00</strong>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-head">
+              <strong>Movimentacao (ultimos 7 dias)</strong>
+            </div>
+            <svg id="saldo-chart" viewBox="0 0 300 90" preserveAspectRatio="none" aria-label="Grafico de movimentacao">
+              <polygon id="saldo-chart-area" points="" />
+              <path id="saldo-chart-line" d="" />
+            </svg>
+          </div>
+          <button id="refresh-saldo-btn" class="secondary">Atualizar saldo e extrato</button>
+
+          <div class="recent-card">
+            <div class="chart-head">
+              <strong>Ultimas transacoes</strong>
+            </div>
+            <ul id="recent-list"></ul>
+          </div>
+        </article>
+
+        <article id="section-deposito" class="content-section hidden">
+          <h3>Deposito</h3>
+          <form id="deposito-form" class="inline-form">
+            <label for="deposito-valor">Valor</label>
+            <input id="deposito-valor" type="number" step="0.01" min="0.01" required>
+            <button type="submit">Depositar</button>
+          </form>
+        </article>
+
+        <article id="section-pix" class="content-section hidden">
+          <h3>PIX</h3>
+          <div class="recent-card">
+            <div class="chart-head">
+              <strong>Minhas chaves PIX</strong>
+            </div>
+            <form id="pix-chave-form" class="inline-form">
+              <label for="pix-chave-tipo">Tipo da chave</label>
+              <select id="pix-chave-tipo" required>
+                <option value="CPF">CPF</option>
+                <option value="EMAIL">EMAIL</option>
+                <option value="TELEFONE">TELEFONE</option>
+                <option value="ALEATORIA">ALEATORIA</option>
+              </select>
+
+              <label for="pix-chave-valor">Valor da chave</label>
+              <input id="pix-chave-valor" type="text" required>
+              <button type="submit">Cadastrar chave PIX</button>
+            </form>
+
+            <ul id="pix-chave-list"></ul>
+          </div>
+
+          <form id="pix-preview-form" class="inline-form">
+            <label for="pix-chave-destino">Chave PIX destino</label>
+            <input id="pix-chave-destino" type="text" required>
+            <label for="pix-valor">Valor</label>
+            <input id="pix-valor" type="number" step="0.01" min="0.01" required>
+            <label class="notify-unread">
+              <input id="pix-confirmacao-extra" type="checkbox">
+              Confirmacao extra para valor alto
+            </label>
+            <button type="submit">Validar PIX</button>
+          </form>
+
+          <div id="pix-preview-card" class="recent-card hidden">
+            <div class="chart-head">
+              <strong>Confirmacao da operacao</strong>
+            </div>
+            <p><strong>Operacao:</strong> <span id="pix-preview-operacao">-</span></p>
+            <p><strong>Destino:</strong> <span id="pix-preview-destino">-</span></p>
+            <p><strong>CPF:</strong> <span id="pix-preview-cpf">-</span></p>
+            <p><strong>Chave:</strong> <span id="pix-preview-chave">-</span></p>
+            <p><strong>Valor:</strong> <span id="pix-preview-valor">-</span></p>
+            <p><strong>Expira em:</strong> <span id="pix-preview-expira">-</span></p>
+
+            <form id="pix-confirm-form" class="inline-form">
+              <label for="pix-confirm-senha">Senha para confirmar</label>
+              <input id="pix-confirm-senha" type="password" required>
+              <button type="submit">Confirmar PIX</button>
+            </form>
+          </div>
+        </article>
+
+        <article id="section-extrato" class="content-section hidden">
+          <h3>Extrato</h3>
+          <div class="extrato-toolbar">
+            <select id="extrato-periodo">
+              <option value="TODOS">Todo periodo</option>
+              <option value="HOJE">Hoje</option>
+              <option value="7DIAS">Ultimos 7 dias</option>
+              <option value="MES">Este mes</option>
+            </select>
+
+            <select id="extrato-tipo">
+              <option value="TODOS">Todos os tipos</option>
+              <option value="DEPOSITO">Deposito</option>
+              <option value="PIX_ENVIADO">PIX enviado</option>
+              <option value="PIX_RECEBIDO">PIX recebido</option>
+            </select>
+
+            <button id="extrato-export-btn" type="button" class="secondary">Exportar CSV</button>
+          </div>
+
+          <ul id="extrato-list"></ul>
+
+          <div class="extrato-pagination">
+            <button id="extrato-prev-btn" type="button" class="secondary">Anterior</button>
+            <span id="extrato-page-info">Pagina 1/1</span>
+            <button id="extrato-next-btn" type="button" class="secondary">Proxima</button>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <section id="feedback" class="feedback hidden"></section>
+    <section id="profile-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-head">
+          <h4>Meu Perfil</h4>
+          <button id="profile-close-btn" type="button" class="link-btn">Fechar</button>
+        </div>
+
+        <div class="perfil-grid">
+          <div><span>Nome</span><strong id="perfil-modal-nome">-</strong></div>
+          <div><span>Email</span><strong id="perfil-modal-email">-</strong></div>
+          <div><span>CPF</span><strong id="perfil-modal-cpf">-</strong></div>
+        </div>
+
+        <form id="profile-password-form" class="auth-form">
+          <label for="senha-atual">Senha atual</label>
+          <input id="senha-atual" type="password" required>
+
+          <label for="nova-senha">Nova senha</label>
+          <input id="nova-senha" type="password" minlength="6" required>
+
+          <label for="confirmar-nova-senha">Confirmar nova senha</label>
+          <input id="confirmar-nova-senha" type="password" minlength="6" required>
+
+          <button type="submit">Alterar senha</button>
+        </form>
+      </div>
+    </section>
+    <footer class="app-footer">MiniBanco © 2026 · Instituicao Financeira Digital · Ambiente de simulacao academica</footer>
+  </main>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

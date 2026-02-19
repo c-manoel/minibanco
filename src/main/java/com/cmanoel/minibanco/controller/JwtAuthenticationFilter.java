@@ -44,6 +44,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = header.substring(7);
         try {
+            if (!jwtUtil.isAccessToken(token)) {
+                SecurityContextHolder.clearContext();
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String email = jwtUtil.extrairEmail(token);
             Conta conta = contaRepository.findByEmail(email).orElse(null);
 
